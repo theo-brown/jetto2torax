@@ -133,8 +133,8 @@ def config(
     # Temperature [keV]
     ## Initial or prescribed profiles
     ## Note: if evolving the temperature profiles, only the initial value will be used
-    profile_conditions["Te"] = (time, rho_norm, jsp.TE.values[0] / 1e3)
-    profile_conditions["Ti"] = (time, rho_norm, jsp.TI.values[0] / 1e3)
+    profile_conditions["Te"] = (time, rho_norm, jsp.TE.values / 1e3)
+    profile_conditions["Ti"] = (time, rho_norm, jsp.TI.values / 1e3)
     ## Boundary conditions
     profile_conditions["Te_bound_right"] = (time, jst.TEBO.values / 1e3)
     profile_conditions["Ti_bound_right"] = (time, jst.TIBO.values / 1e3)
@@ -145,19 +145,19 @@ def config(
     # Density [nref m^-3]
     ## Initial or prescribed profiles
     ## Note: if evolving the density profiles, only the initial value will be used
-    profile_conditions["ne"] = (time, rho_norm, jsp.NE.values[0] / numerics["nref"])
+    profile_conditions["ne"] = (time, rho_norm, jsp.NE.values / numerics["nref"])
     ## Boundary conditions
     profile_conditions["ne_bound_right"] = (time, jst.NEBO.values / numerics["nref"])
     ## Pedestal
     profile_conditions["neped"] = (time, jst.NEBA.values / numerics["nref"])
     ## nbar = line averaged density
     profile_conditions["normalize_to_nbar"] = True
-    profile_conditions["nbar"] = jst.NEL.values[0] / numerics["nref"]
+    profile_conditions["nbar"] = (time, jst.NEL.values / numerics["nref"])
     profile_conditions["ne_is_fGW"] = False
 
     #  Additional pedestal settings
     profile_conditions["set_pedestal"] = True
-    profile_conditions["Ped_top"] = (time, jst.ROBA.values[0])
+    profile_conditions["Ped_top"] = (time, jst.ROBA.values)
 
     ###################
     # 5. Set geometry #
