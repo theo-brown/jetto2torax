@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jetto2torax"
+version = "0.1.0"
+description = "Tools to convert JETTO configuration files to a TORAX configuration dict"
+readme = "README.md"
+license = "MIT"
+authors = [{name = "Theo Brown", email = "theo.brown@ukaea.uk"}]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+requires-python = ">=3.10"
+dependencies = [
+    "jetto_tools",
+    "jax",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/theo-brown/jetto2torax"
