@@ -177,7 +177,7 @@ def config(
     ##################
     sources = torax_config["sources"]
 
-    # Internal plasma heat sources and sinks
+    # Internal plasma sources and sinks
     ## Ohmic and Qei will always be set
     sources["ohmic_heat_source"] = {}  # default
     sources["qei_source"] = {}  # default
@@ -198,7 +198,6 @@ def config(
 
     ## TODO: Add Prad
 
-    # Current sources
     ## Bootstrap (Sauter model)
     if jset is not None:
         if jset.get("CurrentPanel.selBootstrap", False):
@@ -209,7 +208,7 @@ def config(
     else:
         warn("JSET not loaded; bootstrap current not set.")
 
-    # Density sources
+    # External sources
     ## Pellet (Continuous)
     if jset is not None:
         # Pellet is set in a somewhat convoluted way in JSET
@@ -222,8 +221,15 @@ def config(
     else:
         warn("JSET not loaded; pellet source not set.")
 
-    # Electron-cyclotron Heating
-    warn("ECHCD not yet implemented in TORAX; none will be set.")
+    ## Electron-cyclotron Heating (Lin-Liu model)
+    ### Filter QECE to get rid of spurious values
+    qec = jsp.QECE.values
+    qec[qec < CONSTANTS.eps] = 0
+    sources["electron_cyclotron_source"] = {
+        "mode": "model_based",
+        "manual_ec_power_density": (time, rho_norm, jsp.QECE.values),
+        "cd_efficiency": 0.2,
+    }
 
     ####################
     # 7. Set transport #
