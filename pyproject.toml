@@ -17,7 +17,7 @@ classifiers = [
 requires-python = ">=3.10"
 dependencies = [
     "jetto_tools",
-    "jax",
+    "numpy",
 ]
 
 [project.urls]

@@ -2,8 +2,8 @@ from os import PathLike
 from typing import TypeAlias
 from warnings import warn
 
-import jax.numpy as jnp
 import jetto_tools
+import numpy as np
 from jetto_tools.classes import jsp_to_xarray, jst_to_xarray
 
 FileName: TypeAlias = str | bytes | PathLike
@@ -94,11 +94,11 @@ def config(
 
     if jset is not None:
         # Main species mass
-        species_mass = jnp.array(jset.get("EquationsPanel.ionDens.mass", jnp.nan))
-        species_fraction = jnp.array(
-            jset.get("EquationsPanel.ionDens.fraction", jnp.nan)
+        species_mass = np.array(jset.get("EquationsPanel.ionDens.mass", np.nan))
+        species_fraction = np.array(
+            jset.get("EquationsPanel.ionDens.fraction", np.nan)
         )
-        plasma_composition["Ai"] = jnp.sum(species_mass * species_fraction)
+        plasma_composition["Ai"] = np.sum(species_mass * species_fraction)
 
         # Effective charge
         plasma_composition["Zeff"] = jset.get("SancoICZPanel.ConstantZeff", None)
