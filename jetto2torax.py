@@ -201,7 +201,7 @@ def config(
     ## Bootstrap (Sauter model)
     if jset is not None:
         if jset.get("CurrentPanel.selBootstrap", False):
-            sources["bootstrap_current_source"] = {
+            sources["j_bootstrap"] = {
                 "mode": "model",
                 "bootstrap_mult": jset["CurrentPanel.bootstrapCoeff"],
             }
