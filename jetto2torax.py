@@ -2,9 +2,10 @@ from os import PathLike
 from typing import TypeAlias
 from warnings import warn
 
+import jax.numpy as jnp
 import jetto_tools
-import numpy as np
 from jetto_tools.classes import jsp_to_xarray, jst_to_xarray
+from torax.constants import CONSTANTS
 
 FileName: TypeAlias = str | bytes | PathLike
 
@@ -94,11 +95,11 @@ def config(
 
     if jset is not None:
         # Main species mass
-        species_mass = np.array(jset.get("EquationsPanel.ionDens.mass", np.nan))
-        species_fraction = np.array(
-            jset.get("EquationsPanel.ionDens.fraction", np.nan)
+        species_mass = jnp.array(jset.get("EquationsPanel.ionDens.mass", jnp.nan))
+        species_fraction = jnp.array(
+            jset.get("EquationsPanel.ionDens.fraction", jnp.nan)
         )
-        plasma_composition["Ai"] = np.sum(species_mass * species_fraction)
+        plasma_composition["Ai"] = jnp.sum(species_mass * species_fraction)
 
         # Effective charge
         plasma_composition["Zeff"] = jset.get("SancoICZPanel.ConstantZeff", None)
@@ -266,21 +267,22 @@ def config(
     #############################
     return torax_config
 
+
 def jz_to_jdotB(jz, A, rho):
     """Convert a JETTO JZ current density to a <j.B> current density.
-    
+
     Parameters
     ----------
-    jz : np.ndarray
+    jz : jnp.ndarray
         JETTO JZ current density.
-    A : np.ndarray
+    A : jnp.ndarray
         Array of flux surface areas.
-    rho : np.ndarray
+    rho : jnp.ndarray
         Radial coordinate (unnormalised).
-        
+
     Returns
     -------
-    np.ndarray
+    jnp.ndarray
         <j.B> current density.
     """
-    return 2 * np.pi * rho * jz / np.gradient(A, rho)
+    return 2 * jnp.pi * rho * jz / jnp.gradient(A, rho)
