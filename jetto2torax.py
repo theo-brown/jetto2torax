@@ -86,10 +86,13 @@ def config(
     #############################
     # 4. Set plasma composition #
     #############################
-    # If jset is None, leave as TORAX defaults
-    if jset is not None:
-        plasma_composition = torax_config["runtime_params"]["plasma_composition"]
+    plasma_composition = torax_config["runtime_params"]["plasma_composition"]
 
+    # Main species charge
+    ## Only support hydrogen plasmas
+    plasma_composition["Zi"] = 1.0
+
+    if jset is not None:
         # Main species mass
         species_mass = jnp.array(jset.get("EquationsPanel.ionDens.mass", jnp.nan))
         species_fraction = jnp.array(
@@ -97,16 +100,14 @@ def config(
         )
         plasma_composition["Ai"] = jnp.sum(species_mass * species_fraction)
 
-        # Main species charge
-        # TODO
-        plasma_composition["Zi"] = 1.0
-
         # Effective charge
-        # TODO
-        plasma_composition["Zeff"] = 1.0
+        plasma_composition["Zeff"] = jset.get("SancoICZPanel.ConstantZeff", None)
+        if plasma_composition["Zeff"] is None:
+            warn("Zeff not set to constant in JSET; Zeff not set.")
+            del plasma_composition["Zeff"]
 
         # Impurity species charge
-        # We average over all the impurities
+        ## We average over all the impurities
         Zimp = 0
         n_impurity_species = 0
         for i in range(6):
@@ -115,6 +116,9 @@ def config(
                 n_impurity_species += 1
         Zimp /= n_impurity_species
         plasma_composition["Zimp"] = Zimp
+
+    else:
+        warn("JSET not loaded; Ai, Zeff, Zimp not set.")
 
     #############################
     # 5. Set profile conditions #
