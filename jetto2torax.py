@@ -202,7 +202,7 @@ def config(
     if jset is not None:
         if jset.get("CurrentPanel.selBootstrap", False):
             sources["j_bootstrap"] = {
-                "mode": "model",
+                "mode": "model_based",
                 "bootstrap_mult": jset["CurrentPanel.bootstrapCoeff"],
             }
     else:
@@ -213,7 +213,7 @@ def config(
     if jset is not None:
         # Pellet is set in a somewhat convoluted way in JSET
         sources["pellet_source"] = {
-            "mode": "formula",
+            "mode": "formula_based",
             "pellet_deposition_location": jset.extras["SPCEN"].as_dict()[None],
             "pellet_width": jset.extras["SPWID"].as_dict()[None],
             "S_pellet_tot": (time, jst.SPEL.values),
