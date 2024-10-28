@@ -234,7 +234,8 @@ def config(
         if jset.get("TransportStdJettoDialog.selBohm", False) and jset.get(
             "TransportStdJettoDialog.selGyroBohm", False
         ):
-            transport["bohm-grobohm_params"] = {
+            transport["transport_model"] = "bohm-gyrobohm"
+            transport["bohm-gyrobohm_params"] = {
                 "chi_e_bohm_coeff": jset.get(
                     "TransportStdAdvDialog.elecBohmCoeff", 8e-5
                 ),
