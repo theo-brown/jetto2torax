@@ -247,6 +247,8 @@ def config(
                     "TransportStdAdvDialog.ionGBohmCoeff", 5e-6
                 ),
             }
+            # TODO: There's a coefficient for the inward particle pinch in 
+            # JSET/Transport/Additional/Inward particle pinch, but it's not clear what it sets.
             warn("d_face_c1 and d_face_c2 not yet supported; using default values.")
         # TODO: QLKNN transport model
         # elif
