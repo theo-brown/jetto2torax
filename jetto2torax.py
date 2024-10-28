@@ -232,25 +232,26 @@ def config(
 
     if jset is not None:
         # Bohm-gyroBohm transport model
+        ## Confusingly, JETTO has a hidden set of prefactors hardcoded
         if jset.get("TransportStdJettoDialog.selBohm", False) and jset.get(
             "TransportStdJettoDialog.selGyroBohm", False
         ):
             transport["transport_model"] = "bohm-gyrobohm"
             transport["bohm-gyrobohm_params"] = {
-                "chi_e_bohm_coeff": jset.get(
-                    "TransportStdAdvDialog.elecBohmCoeff", 8e-5
-                ),
+                "chi_e_bohm_coeff": jset.get("TransportStdAdvDialog.elecBohmCoeff", 1.0)
+                * 2e-4,
                 "chi_e_gyrobohm_coeff": jset.get(
-                    "TransportStdAdvDialog.elecGBohmCoeff", 5e-6
-                ),
-                "chi_i_bohm_coeff": jset.get(
-                    "TransportStdAdvDialog.ionBohmCoeff", 8e-5
-                ),
+                    "TransportStdAdvDialog.elecGBohmCoeff", 1.0
+                )
+                * 5e-6,
+                "chi_i_bohm_coeff": jset.get("TransportStdAdvDialog.ionBohmCoeff", 1.0)
+                * 2e-4,
                 "chi_i_gyrobohm_coeff": jset.get(
-                    "TransportStdAdvDialog.ionGBohmCoeff", 5e-6
-                ),
+                    "TransportStdAdvDialog.ionGBohmCoeff", 1.0
+                )
+                * 5e-6,
             }
-            # TODO: There's a coefficient for the inward particle pinch in 
+            # TODO: There's a coefficient for the inward particle pinch in
             # JSET/Transport/Additional/Inward particle pinch, but it's not clear what it sets.
             warn("d_face_c1 and d_face_c2 not yet supported; using default values.")
         # TODO: QLKNN transport model
