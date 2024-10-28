@@ -127,7 +127,8 @@ def config(
     rho_norm = jsp.XRHO.values[0]
 
     # Plasma current [MA]
-    profile_conditions["Ip"] = (time, jst.CUR.values / 1e6)
+    # Note: JETTO current is -ve
+    profile_conditions["Ip"] = (time, -jst.CUR.values / 1e6)
 
     # Temperature [keV]
     ## Initial or prescribed profiles
