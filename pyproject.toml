@@ -7,7 +7,6 @@ name = "jetto2torax"
 version = "0.1.0"
 description = "Tools to convert JETTO configuration files to a TORAX configuration dict"
 readme = "README.md"
-license = "MIT"
 authors = [{name = "Theo Brown", email = "theo.brown@ukaea.uk"}]
 classifiers = [
     "Programming Language :: Python :: 3",
