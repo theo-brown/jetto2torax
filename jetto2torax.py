@@ -10,7 +10,10 @@ FileName: TypeAlias = str | bytes | PathLike
 
 
 def config(
-    jsp_path: FileName, jst_path: FileName, jset_path: FileName | None = None, eqdsk_path: FileName | None = None
+    jsp_path: FileName,
+    jst_path: FileName,
+    jset_path: FileName | None = None,
+    eqdsk_path: FileName | None = None,
 ) -> dict:
     """Create a TORAX configuration dictionary from JETTO files.
 
@@ -156,13 +159,13 @@ def config(
     ###################
     if eqdsk_path is not None:
         torax_config["geometry"] = {
-            'geometry_type': 'EQDSK',
-            'geometry_file': eqdsk_path,
-            'Ip_from_parameters': True,
-        }   
+            "geometry_type": "EQDSK",
+            "geometry_file": eqdsk_path,
+            "Ip_from_parameters": True,
+        }
     else:
         warn("No EQDSK file provided; geometry not set.")
-        
+
     ##################
     # 6. Set sources #
     ##################
@@ -176,14 +179,14 @@ def config(
     ## Fusion power
     if jset is not None:
         if jset.get("FusionPanel.select", False):
-            sources["fusion_heat_source"] = {} # default
+            sources["fusion_heat_source"] = {}  # default
     else:
         warn("JSET not loaded; fusion heat source not set.")
 
     ## Bremsstrahlung
     if jset is not None:
         if jset.get("RadiationAddPanel.bremsstrahlung", False):
-            sources["bremsstrahlung_heat_sink"] = {} # default
+            sources["bremsstrahlung_heat_sink"] = {}  # default
     else:
         warn("JSET not loaded; Bremsstrahlung heat not set.")
 
