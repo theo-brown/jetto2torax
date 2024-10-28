@@ -201,7 +201,7 @@ def config(
     if jset is not None:
         if jset.get("CurrentPanel.selBootstrap", False):
             sources["bootstrap_current_source"] = {
-                "mode": "sauter",
+                "mode": "model",
                 "bootstrap_mult": jset["CurrentPanel.bootstrapCoeff"],
             }
     else:
