@@ -263,3 +263,22 @@ def config(
     # 8. Return the config dict #
     #############################
     return torax_config
+
+def jz_to_jdotB(jz, A, rho):
+    """Convert a JETTO JZ current density to a <j.B> current density.
+    
+    Parameters
+    ----------
+    jz : np.ndarray
+        JETTO JZ current density.
+    A : np.ndarray
+        Array of flux surface areas.
+    rho : np.ndarray
+        Radial coordinate (unnormalised).
+        
+    Returns
+    -------
+    np.ndarray
+        <j.B> current density.
+    """
+    return 2 * np.pi * rho * jz / np.gradient(A, rho)
