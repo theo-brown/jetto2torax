@@ -198,6 +198,22 @@ def config(
     else:
         warn("JSET not loaded; Bremsstrahlung heat not set.")
     
+    ## Radiation
+    if jset is not None:
+        if jset["RadiationPanel.select"]:
+            if jset["RadiationPanel.source"] == "Radially Constant":
+                sources["radiation_heat_sink"] = {
+                    "mode": "model_based",
+                    "fraction_of_total_power_density": jset["RadiationPanel.norm.value"][0],
+                }
+            else:
+                warn(f"Unrecognised radiation source in JSET (got {jset['RadiationPanel.source']}); radiation heat sink not set.")
+        else:
+            warn("Radiation not selected in JSET; radiation heat sink not set.")
+    else:
+        warn("JSET not loaded; radiation heat sink not set.")
+        
+        
     ## Bootstrap (Sauter model)
     if jset is not None:
         if jset.get("CurrentPanel.selBootstrap", False):
