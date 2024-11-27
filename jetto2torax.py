@@ -256,10 +256,34 @@ def config(
                     "TransportStdAdvDialog.ionGBohmCoeff", 1.0
                 )
                 * 5e-6,
+                "d_face_c1": jset.get(
+                    "TransportAdvPanel.DiffusionFirst", 1.0
+                ),
+                "d_face_c2": jset.get(
+                    "TransportAdvPanel.DiffusionSecond", 1.0
+                ),
             }
-            # TODO: There's a coefficient for the inward particle pinch in
-            # JSET/Transport/Additional/Inward particle pinch, but it's not clear what it sets.
-            warn("d_face_c1 and d_face_c2 not yet supported; using default values.")
+            # Check diffusion coefficients
+            d1_c1 = jset.get(
+                    "TransportAdvPanel.DiffusionFirst", 1.0
+                )
+            d1_c2 = jset.get(
+                    "TransportAdvPanel.DiffusionSecond", 1.0
+                )
+            d2_c1 = jset.get(
+
+                    "TransportAdvPanel.DiffusionFirst2", 1.0
+                )
+            d2_c2 = jset.get(
+                    "TransportAdvPanel.DiffusionSecond2", 1.0
+                )
+            if d1_c1 != d2_c1 or d1_c2 != d2_c2:
+                warn("JETTO has unique values for diffusion coefficients for different species; using the values for species 1 only"
+                     f" (using {d1_c1}, {d1_c2} and discarding {d2_c1}, {d2_c2}).")
+            if jset.get("TransportAddPanel.PinchIonOne", 0.5) != 0.5:
+                warn(f"JETTO has a pinch coefficient that is not 0.5 (got {jset.get('TransportAddPanel.PinchIonOne', 0.5)});"
+                     "TORAX does not support this; the pinch coefficient will be set to 0.5.")
+
         # TODO: QLKNN transport model
         # elif
         # TODO: CGM transport model
