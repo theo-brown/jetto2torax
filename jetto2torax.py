@@ -129,7 +129,7 @@ def config(
 
     # Plasma current [MA]
     # Note: JETTO current is -ve
-    profile_conditions["Ip"] = (time, -jst.CUR.values / 1e6)
+    profile_conditions["Ip_tot"] = (time, -jst.CUR.values / 1e6)
 
     # Temperature [keV]
     ## Initial or prescribed profiles
