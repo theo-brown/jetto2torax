@@ -61,6 +61,7 @@ def config(
             "numerics": {},
         },
         "geometry": {},
+        "pedestal": {},
         "sources": {},
         "transport": {},
         "stepper": {},
@@ -139,9 +140,6 @@ def config(
     ## Boundary conditions
     profile_conditions["Te_bound_right"] = (time, jst.TEBO.values / 1e3)
     profile_conditions["Ti_bound_right"] = (time, jst.TIBO.values / 1e3)
-    ## Pedestal
-    profile_conditions["Teped"] = (time, jst.TEBA.values / 1e3)
-    profile_conditions["Tiped"] = (time, jst.TIBA.values / 1e3)
 
     # Density [nref m^-3]
     ## Initial or prescribed profiles
@@ -149,32 +147,36 @@ def config(
     profile_conditions["ne"] = (time, rho_norm, jsp.NE.values / numerics["nref"])
     ## Boundary conditions
     profile_conditions["ne_bound_right"] = (time, jst.NEBO.values / numerics["nref"])
-    ## Pedestal
-    profile_conditions["neped"] = (time, jst.NEBA.values / numerics["nref"])
     ## nbar = line averaged density
     profile_conditions["normalize_to_nbar"] = True
     profile_conditions["nbar"] = (time, jst.NEL.values / numerics["nref"])
     profile_conditions["ne_is_fGW"] = False
 
-    #  Additional pedestal settings
-    profile_conditions["set_pedestal"] = True
-    profile_conditions["Ped_top"] = (time, jst.ROBA.values)
-
-    ###################
-    # 5. Set geometry #
-    ###################
+    ###############
+    # 6. Pedestal #
+    ###############
+    pedestal = torax_config["pedestal"]
+    pedestal["rho_norm_ped_top"] = (time, jst.ROBA.values)
+    pedestal["Teped"] = (time, jst.TEBA.values / 1e3)
+    pedestal["Tiped"] = (time, jst.TIBA.values / 1e3)
+    pedestal["neped"] = (time, jst.NEBA.values / numerics["nref"])
+    
+    ###############
+    # 7. Geometry #
+    ###############
     if eqdsk_path is not None:
         torax_config["geometry"] = {
             "geometry_type": "EQDSK",
             "geometry_file": eqdsk_path,
             "Ip_from_parameters": True,
         }
+        warn("JETTO EQDSK may be a different COCOS to TORAX. Conversion not yet implemented.")
     else:
         warn("No EQDSK file provided; geometry not set.")
 
-    ##################
-    # 6. Set sources #
-    ##################
+    ##############
+    # 7. Sources #
+    ##############
     sources = torax_config["sources"]
 
     # Internal plasma sources and sinks
@@ -195,9 +197,7 @@ def config(
             sources["bremsstrahlung_heat_sink"] = {}  # default
     else:
         warn("JSET not loaded; Bremsstrahlung heat not set.")
-
-    ## TODO: Add Prad
-
+    
     ## Bootstrap (Sauter model)
     if jset is not None:
         if jset.get("CurrentPanel.selBootstrap", False):
@@ -227,13 +227,14 @@ def config(
     qec[qec < CONSTANTS.eps] = 0
     sources["electron_cyclotron_source"] = {
         "mode": "model_based",
-        "manual_ec_power_density": (time, rho_norm, jsp.QECE.values),
+        "manual_ec_power_density": (time, rho_norm, qec),
+        # TODO: set this from JETTO
         "cd_efficiency": 0.2,
     }
 
-    ####################
-    # 7. Set transport #
-    ####################
+    ################
+    # 8. Transport #
+    ################
     transport = torax_config["transport"]
 
     if jset is not None:
