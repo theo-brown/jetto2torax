@@ -148,8 +148,7 @@ def config(
     ## Boundary conditions
     profile_conditions["ne_bound_right"] = (time, jst.NEBO.values / numerics["nref"])
     ## nbar = line averaged density
-    profile_conditions["normalize_to_nbar"] = True
-    profile_conditions["nbar"] = (time, jst.NEL.values / numerics["nref"])
+    profile_conditions["normalize_to_nbar"] = False
     profile_conditions["ne_is_fGW"] = False
 
     ###############
