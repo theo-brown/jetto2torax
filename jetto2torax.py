@@ -168,7 +168,7 @@ def config(
         torax_config["geometry"] = {
             "geometry_type": "EQDSK",
             "geometry_file": eqdsk_path,
-            "Ip_from_parameters": True,
+            "Ip_from_parameters": False,
         }
         warn("JETTO EQDSK may be a different COCOS to TORAX. Conversion not yet implemented.")
     else:
