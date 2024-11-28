@@ -100,27 +100,25 @@ def config(
         species_fraction = jnp.array(
             jset.get("EquationsPanel.ionDens.fraction", jnp.nan)
         )
-        plasma_composition["Ai"] = jnp.sum(species_mass * species_fraction)
+        plasma_composition["Ai"] = jnp.sum(species_mass * species_fraction).item()
 
-        # Effective charge
-        plasma_composition["Zeff"] = jset.get("SancoICZPanel.ConstantZeff", None)
-        if plasma_composition["Zeff"] is None:
-            warn("Zeff not set to constant in JSET; Zeff not set.")
-            del plasma_composition["Zeff"]
-
-        # Impurity species charge
-        ## We average over all the impurities
-        Zimp = 0
-        n_impurity_species = 0
-        for i in range(6):
-            if jset[f"ImpOptionPanel.impuritySelect[{i}]"]:
-                Zimp += jset[f"ImpOptionPanel.impurityCharge[{i}]"]
-                n_impurity_species += 1
-        Zimp /= n_impurity_species
-        plasma_composition["Zimp"] = Zimp
-
+        # Impurities and Zeff
+        if not jset.get("ImpOptionPanel.select", False) or not jset.get("ImpOptionPanel.source", "") == "Interpretive":
+            warn("Impurities not set to interpretive in JSET; Zeff, Zimp, Aimp not set.")
+        else:
+            # TODO:  Solve for multiple impurities
+            if sum(jset["ImpOptionPanel.select"]) > 1:
+                warn("Multiple impurities selected in JSET; only the first will be used.")
+            plasma_composition["Zimp"] = jset["ImpOptionPanel.impurityCharge"][0]
+            plasma_composition["Aimp"] = jset["ImpOptionPanel.impurityMass"][0]
+            
+            # Effective charge
+            if not jset.get("ImpInterDialog.source", "") == "Radially Constant":
+                warn("Impurity charge not set to radially constant in JSET; Zeff not set.")
+            else:
+                plasma_composition["Zeff"] = jset["ImpInterDialog.norm.value"][0]
     else:
-        warn("JSET not loaded; Ai, Zeff, Zimp not set.")
+        warn("JSET not loaded; Ai, Zeff, Zimp, Aimp not set.")
 
     #############################
     # 5. Set profile conditions #
@@ -131,7 +129,7 @@ def config(
     # Plasma current [MA]
     # Note: JETTO current is -ve
     profile_conditions["Ip_tot"] = (time, -jst.CUR.values / 1e6)
-
+    
     # Temperature [keV]
     ## Initial or prescribed profiles
     ## Note: if evolving the temperature profiles, only the initial value will be used
