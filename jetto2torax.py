@@ -199,7 +199,7 @@ def config(
     if jset is not None:
         if jset["RadiationPanel.select"]:
             if jset["RadiationPanel.source"] == "Radially Constant":
-                sources["radiation_heat_sink"] = {
+                sources["impurity_radiation_heat_sink"] = {
                     "mode": "model_based",
                     "fraction_of_total_power_density": jset["RadiationPanel.norm.value"][0],
                 }
