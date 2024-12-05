@@ -271,25 +271,25 @@ def config(
                 )
                 * 5e-6,
                 "d_face_c1": jset.get(
-                    "TransportAdvPanel.DiffusionFirst", 1.0
+                    "TransportAdvPanel.DiffusionFirst", 0.0
                 ),
                 "d_face_c2": jset.get(
-                    "TransportAdvPanel.DiffusionSecond", 1.0
+                    "TransportAdvPanel.DiffusionSecond", 0.0
                 ),
             }
             # Check diffusion coefficients
             d1_c1 = jset.get(
-                    "TransportAdvPanel.DiffusionFirst", 1.0
+                    "TransportAdvPanel.DiffusionFirst", 0.0
                 )
             d1_c2 = jset.get(
-                    "TransportAdvPanel.DiffusionSecond", 1.0
+                    "TransportAdvPanel.DiffusionSecond", 0.0
                 )
             d2_c1 = jset.get(
 
-                    "TransportAdvPanel.DiffusionFirst2", 1.0
+                    "TransportAdvPanel.DiffusionFirst2", 0.0
                 )
             d2_c2 = jset.get(
-                    "TransportAdvPanel.DiffusionSecond2", 1.0
+                    "TransportAdvPanel.DiffusionSecond2", 0.0
                 )
             if d1_c1 != d2_c1 or d1_c2 != d2_c2:
                 warn("JETTO has unique values for diffusion coefficients for different species; using the values for species 1 only"
