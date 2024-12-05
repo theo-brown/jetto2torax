@@ -106,13 +106,24 @@ def config(
         if not jset.get("ImpOptionPanel.select", False) or not jset.get("ImpOptionPanel.source", "") == "Interpretive":
             warn("Impurities not set to interpretive in JSET; Zeff, Zimp, Aimp not set.")
         else:
-            # TODO:  Solve for multiple impurities
-            if sum(jset["ImpOptionPanel.select"]) > 1:
-                warn("Multiple impurities selected in JSET; only the first will be used.")
-            plasma_composition["Zimp"] = jset["ImpOptionPanel.impurityCharge"][0]
-            plasma_composition["Aimp"] = jset["ImpOptionPanel.impurityMass"][0]
-            
-            # Effective charge
+            # Average impurity charge
+            enabled_impurities = jset["ImpOptionPanel.impuritySelect"]
+            impurity_charge = jnp.array([z for i, z in enumerate(jset["ImpOptionPanel.impurityCharge"]) if enabled_impurities[i]]) # Assume constant charge state 
+            impurity_mass = jnp.array([m for i, m in enumerate(jset["ImpOptionPanel.impurityMass"]) if enabled_impurities[i]])
+            impurity_density = jnp.stack([
+                jsp[f"NIM{i+1}"].values
+                for i, enabled in enumerate(enabled_impurities)
+                if enabled
+            ], -1)
+                        
+            Zi_ni = jnp.sum(impurity_charge * impurity_density, axis=-1)
+            Zi2_ni = jnp.sum(impurity_charge**2 * impurity_density, axis=-1)
+            plasma_composition["Zimp"] = Zi2_ni / Zi_ni
+
+            # Average impurity mass 
+            plasma_composition["Aimp"] = jnp.sum(impurity_mass * impurity_density, axis=-1) / jnp.sum(impurity_density, axis=-1)
+
+            # Zeff 
             if not jset.get("ImpInterDialog.source", "") == "Radially Constant":
                 warn("Impurity charge not set to radially constant in JSET; Zeff not set.")
             else:
