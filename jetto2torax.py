@@ -103,31 +103,28 @@ def config(
         plasma_composition["Ai"] = jnp.sum(species_mass * species_fraction).item()
 
         # Impurities and Zeff
-        if not jset.get("ImpOptionPanel.select", False) or not jset.get("ImpOptionPanel.source", "") == "Interpretive":
-            warn("Impurities not set to interpretive in JSET; Zeff, Zimp, Aimp not set.")
+        if (
+            not jset.get("ImpOptionPanel.select", False)
+            or not jset.get("ImpOptionPanel.source", "") == "Interpretive"
+        ):
+            warn(
+                "Impurities not set to interpretive in JSET; Zeff, Zimp, Aimp not set."
+            )
         else:
-            # Average impurity charge
-            enabled_impurities = jset["ImpOptionPanel.impuritySelect"]
-            impurity_charge = jnp.array([z for i, z in enumerate(jset["ImpOptionPanel.impurityCharge"]) if enabled_impurities[i]]) # Assume constant charge state 
-            impurity_mass = jnp.array([m for i, m in enumerate(jset["ImpOptionPanel.impurityMass"]) if enabled_impurities[i]])
-            impurity_density = jnp.stack([
-                jsp[f"NIM{i+1}"].values
-                for i, enabled in enumerate(enabled_impurities)
-                if enabled
-            ], -1)
-                        
-            Zi_ni = jnp.sum(impurity_charge * impurity_density, axis=-1)
-            Zi2_ni = jnp.sum(impurity_charge**2 * impurity_density, axis=-1)
-            plasma_composition["Zimp"] = Zi2_ni / Zi_ni
-
-            # Average impurity mass 
-            plasma_composition["Aimp"] = jnp.sum(impurity_mass * impurity_density, axis=-1) / jnp.sum(impurity_density, axis=-1)
-
-            # Zeff 
+            # Zeff
             if not jset.get("ImpInterDialog.source", "") == "Radially Constant":
-                warn("Impurity charge not set to radially constant in JSET; Zeff not set.")
+                warn(
+                    "Impurity charge not set to radially constant in JSET; Zeff, Zimp not set."
+                )
             else:
                 plasma_composition["Zeff"] = jset["ImpInterDialog.norm.value"][0]
+
+            if sum(jset.get("ImpOptionPanel.impuritySelect", [])) > 1:
+                warn("Multiple impurities not supported; Zimp, Aimp not set.")
+            else:
+                impurity_index = jset["ImpOptionPanel.impuritySelect"].index(True)
+                plasma_composition["Zimp"] = jset["ImpOptionPanel.impurityCharge"][impurity_index]
+                plasma_composition["Aimp"] = jset["ImpOptionPanel.impurityMass"][impurity_index]
     else:
         warn("JSET not loaded; Ai, Zeff, Zimp, Aimp not set.")
 
@@ -140,7 +137,7 @@ def config(
     # Plasma current [MA]
     # Note: JETTO current is -ve
     profile_conditions["Ip_tot"] = (time, -jst.CUR.values / 1e6)
-    
+
     # Temperature [keV]
     ## Initial or prescribed profiles
     ## Note: if evolving the temperature profiles, only the initial value will be used
@@ -168,7 +165,7 @@ def config(
     pedestal["Teped"] = (time, jst.TEBA.values / 1e3)
     pedestal["Tiped"] = (time, jst.TIBA.values / 1e3)
     pedestal["neped"] = (time, jst.NEBA.values / numerics["nref"])
-    
+
     ###############
     # 7. Geometry #
     ###############
@@ -178,7 +175,9 @@ def config(
             "geometry_file": eqdsk_path,
             "Ip_from_parameters": False,
         }
-        warn("JETTO EQDSK may be a different COCOS to TORAX. Conversion not yet implemented.")
+        warn(
+            "JETTO EQDSK may be a different COCOS to TORAX. Conversion not yet implemented."
+        )
     else:
         warn("No EQDSK file provided; geometry not set.")
 
@@ -205,23 +204,26 @@ def config(
             sources["bremsstrahlung_heat_sink"] = {}  # default
     else:
         warn("JSET not loaded; Bremsstrahlung heat not set.")
-    
+
     ## Radiation
     if jset is not None:
         if jset["RadiationPanel.select"]:
             if jset["RadiationPanel.source"] == "Radially Constant":
                 sources["impurity_radiation_heat_sink"] = {
                     "mode": "model_based",
-                    "fraction_of_total_power_density": jset["RadiationPanel.norm.value"][0],
+                    "fraction_of_total_power_density": jset[
+                        "RadiationPanel.norm.value"
+                    ][0],
                 }
             else:
-                warn(f"Unrecognised radiation source in JSET (got {jset['RadiationPanel.source']}); radiation heat sink not set.")
+                warn(
+                    f"Unrecognised radiation source in JSET (got {jset['RadiationPanel.source']}); radiation heat sink not set."
+                )
         else:
             warn("Radiation not selected in JSET; radiation heat sink not set.")
     else:
         warn("JSET not loaded; radiation heat sink not set.")
-        
-        
+
     ## Bootstrap (Sauter model)
     if jset is not None:
         if jset.get("CurrentPanel.selBootstrap", False):
@@ -281,33 +283,24 @@ def config(
                     "TransportStdAdvDialog.ionGBohmCoeff", 1.0
                 )
                 * 5e-6,
-                "d_face_c1": jset.get(
-                    "TransportAdvPanel.DiffusionFirst", 0.0
-                ),
-                "d_face_c2": jset.get(
-                    "TransportAdvPanel.DiffusionSecond", 0.0
-                ),
+                "d_face_c1": jset.get("TransportAdvPanel.DiffusionFirst", 0.0),
+                "d_face_c2": jset.get("TransportAdvPanel.DiffusionSecond", 0.0),
             }
             # Check diffusion coefficients
-            d1_c1 = jset.get(
-                    "TransportAdvPanel.DiffusionFirst", 0.0
-                )
-            d1_c2 = jset.get(
-                    "TransportAdvPanel.DiffusionSecond", 0.0
-                )
-            d2_c1 = jset.get(
-
-                    "TransportAdvPanel.DiffusionFirst2", 0.0
-                )
-            d2_c2 = jset.get(
-                    "TransportAdvPanel.DiffusionSecond2", 0.0
-                )
+            d1_c1 = jset.get("TransportAdvPanel.DiffusionFirst", 0.0)
+            d1_c2 = jset.get("TransportAdvPanel.DiffusionSecond", 0.0)
+            d2_c1 = jset.get("TransportAdvPanel.DiffusionFirst2", 0.0)
+            d2_c2 = jset.get("TransportAdvPanel.DiffusionSecond2", 0.0)
             if d1_c1 != d2_c1 or d1_c2 != d2_c2:
-                warn("JETTO has unique values for diffusion coefficients for different species; using the values for species 1 only"
-                     f" (using {d1_c1}, {d1_c2} and discarding {d2_c1}, {d2_c2}).")
+                warn(
+                    "JETTO has unique values for diffusion coefficients for different species; using the values for species 1 only"
+                    f" (using {d1_c1}, {d1_c2} and discarding {d2_c1}, {d2_c2})."
+                )
             if jset.get("TransportAddPanel.PinchIonOne", 0.5) != 0.5:
-                warn(f"JETTO has a pinch coefficient that is not 0.5 (got {jset.get('TransportAddPanel.PinchIonOne', 0.5)});"
-                     "TORAX does not support this; the pinch coefficient will be set to 0.5.")
+                warn(
+                    f"JETTO has a pinch coefficient that is not 0.5 (got {jset.get('TransportAddPanel.PinchIonOne', 0.5)});"
+                    "TORAX does not support this; the pinch coefficient will be set to 0.5."
+                )
 
         # TODO: QLKNN transport model
         # elif
@@ -342,3 +335,24 @@ def jz_to_jdotB(jz, A, rho):
         <j.B> current density.
     """
     return 2 * jnp.pi * rho * jz / jnp.gradient(A, rho)
+
+
+if __name__ == "__main__":
+    import argparse
+    from pathlib import Path
+
+    import IPython
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument("path")
+    args = parser.parse_args()
+    path = Path(args.path)
+
+    CONFIG = config(
+        jsp_path=path / "jetto.jsp",
+        jst_path=path / "jetto.jst",
+        jset_path=path / "jetto.jset",
+        eqdsk_path=path / "jetto.eqdsk_out",
+    )
+
+    IPython.embed()
